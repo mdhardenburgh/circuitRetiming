@@ -41,6 +41,7 @@ class Retimer
         uint32_t m_maxClockCycle;
         uint32_t m_totalNodes;
         int64_t m_clockPeriod;
+        uint32_t m_optimalClockPeriod;
 
         bool runBellmanford(int64_t period);
         void computeWD();
@@ -48,5 +49,6 @@ class Retimer
         void buildClockPeriodVector();
         void buildConstraintGraph();
         int64_t ceilDivide(int64_t a, int64_t b);
+        void printMatrix(std::shared_ptr<AdjMatrix> matrix, uint32_t totalNodes);
 };
 #endif //RETIMER_H

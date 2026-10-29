@@ -4,6 +4,7 @@
 #include <vector>
 #include <tuple>
 #include <cstdint>
+#include <iomanip>
 
 Retimer::Retimer()
 {
@@ -34,6 +35,7 @@ bool Retimer::retimeCircuit()
     computeWD();
     buildClockPeriodVector();
 
+    (*m_verbosity)<<"begin binary search"<<std::endl;
     // begin binary search
     uint32_t low = 0; 
     uint32_t high = possibleClkPeriods.size(); // first feasible candidate
@@ -42,6 +44,7 @@ bool Retimer::retimeCircuit()
         uint32_t middle = low + (high - low) / 2;
         int32_t testPeriod = possibleClkPeriods.at(middle);
 
+        (*m_verbosity)<<"test period: "<<testPeriod<<std::endl;
         // if clock period is feasible
         if(runBellmanford(testPeriod))
         {
@@ -55,7 +58,7 @@ bool Retimer::retimeCircuit()
     }
     if(low == possibleClkPeriods.size())
     {
-        std::cout<<"No feasible retiming period was found"<<std::endl;
+        (*m_verbosity)<<"No feasible retiming period was found"<<std::endl;
         m_retimingVector.clear();
         return false;
     }
@@ -65,11 +68,11 @@ bool Retimer::retimeCircuit()
     // Check against the maximum allowed clock period
     if(optimalPeriod > m_maxClockCycle)
     {
-        std::cout << "No feasible retiming meets MaxClockCycle"<< std::endl;
+        (*m_verbosity) << "No feasible retiming meets MaxClockCycle"<< std::endl;
         m_retimingVector.clear();
         return false;
     }
-
+    m_optimalClockPeriod = optimalPeriod;
     return runBellmanford(optimalPeriod);
 }
 
@@ -81,6 +84,9 @@ void Retimer::computeWD()
     m_circuitPrime = std::make_shared<AdjMatrix>(m_totalNodes);
     m_wMatrix = std::make_shared<AdjMatrix>(m_totalNodes);
     m_dMatrix = std::make_shared<AdjMatrix>(m_totalNodes);
+
+    (*m_verbosity)<<"original matrix graph G"<<std::endl;
+    printMatrix(m_circuit, m_totalNodes);
 
     // compute G'
     for (uint32_t u = 0; u < m_totalNodes; u++)
@@ -98,6 +104,9 @@ void Retimer::computeWD()
             m_circuitPrime->setEdge(u, v, newWeight);
         }
     }
+
+    (*m_verbosity)<<"circuit G' after applying newWeight = M * origWeight - m_nodeDelays[u]"<<std::endl;
+    printMatrix(m_circuitPrime, m_totalNodes);
 
     // save G` and copy contents to new adj matrix
     for (uint32_t u = 0; u < m_totalNodes; u++)
@@ -132,6 +141,8 @@ void Retimer::computeWD()
             }
         }
     }
+    (*m_verbosity)<<"S'<u,v> matrix after Floyd-Warshall"<<std::endl;
+    printMatrix(m_shortestPath, m_totalNodes);
 
     /**
      * Check the shortest-path distance from node i back to itself. Verify
@@ -141,10 +152,9 @@ void Retimer::computeWD()
     {
         if (m_shortestPath->getEdge(i, i) < 0)
         {
-            std::cout<<"negative cycle"<<std::endl;
+            (*m_verbosity)<<"negative cycle"<<std::endl;
         }
     }
-
 
     /**
      * set W and D matricies.
@@ -169,16 +179,22 @@ void Retimer::computeWD()
                 m_wMatrix->setEdge(u, v, ceilDivide(m_shortestPath->getEdge(u, v), M));
                 m_dMatrix->setEdge(u, v, M * m_wMatrix->getEdge(u, v)-m_shortestPath->getEdge(u, v) + m_nodeDelays.at(v));
                 if (m_wMatrix->getEdge(u, v) < 0)
-                    std::cout<<"negative register count"<<std::endl;
+                    (*m_verbosity)<<"negative register count"<<std::endl;
             }
         }
     }
+    (*m_verbosity)<<"W Matrix"<<std::endl;
+    printMatrix(m_wMatrix, m_totalNodes);
+    (*m_verbosity)<<"D Matrix"<<std::endl;
+    printMatrix(m_dMatrix, m_totalNodes);
 
     // print out W and D
 }
 
 void Retimer::buildSystemOfInequalities()
 {
+    (*m_verbosity)<<"build system of inequalities"<<std::endl;
+    (*m_verbosity)<<"begin with feasability constraints"<<std::endl;
     m_systemOfInequalties.clear();
     //feasability constraints from OG circuit graph
     for(uint32_t u = 0; u < m_totalNodes; u++)
@@ -194,7 +210,11 @@ void Retimer::buildSystemOfInequalities()
             }
         }
     }
-    
+    (*m_verbosity)<<"after feasability constraints are added"<<std::endl;
+    for (const auto& [u, v, weight] : m_systemOfInequalties)
+    {
+        (*m_verbosity) << "r(" << u <<") - r("<<v<<") <= "<<weight<<std::endl;
+    }
     // clock period constraints from W and D matricies
     for(uint32_t u = 0; u < m_totalNodes; u++)
     {
@@ -208,6 +228,12 @@ void Retimer::buildSystemOfInequalities()
                 ));
             }
         }
+    }
+
+    (*m_verbosity)<<"after feasability and clock period constraints are added"<<std::endl;
+    for (const auto& [u, v, weight] : m_systemOfInequalties)
+    {
+        (*m_verbosity) << "r(" << u <<") - r("<<v<<") <= "<<weight<<std::endl;
     }
 }
 
@@ -225,10 +251,18 @@ void Retimer::buildClockPeriodVector()
     std::sort(possibleClkPeriods.begin(), possibleClkPeriods.end());
     // delete duplicates
     possibleClkPeriods.erase(std::unique(possibleClkPeriods.begin(), possibleClkPeriods.end()),possibleClkPeriods.end());
+
+    (*m_verbosity)<<"possible clock periods: ";
+    for(int i = 0; i < possibleClkPeriods.size(); i++)
+    {
+        (*m_verbosity)<<possibleClkPeriods.at(i)<<", ";
+    }
+    (*m_verbosity)<<std::endl;
 }
 
 void Retimer::buildConstraintGraph()
 {
+    (*m_verbosity)<<"building constraint graph"<<std::endl;
     m_constrGraph = std::make_shared<AdjMatrix>(m_totalNodes + 1);
 
     //set constraint graph values from vertex j to vertex i
@@ -256,6 +290,9 @@ void Retimer::buildConstraintGraph()
             0  //k
         );
     }
+
+    (*m_verbosity)<<"constraint graph"<<std::endl;
+    printMatrix(m_constrGraph, m_totalNodes+1);
 }
 
 /**
@@ -263,6 +300,8 @@ void Retimer::buildConstraintGraph()
 */
 bool Retimer::runBellmanford(int64_t period)
 {
+    (*m_verbosity)<<"run Bellman-Ford algorithm"<<std::endl;
+    
     // Set the clock period being tested
     m_clockPeriod = period;
 
@@ -322,7 +361,7 @@ bool Retimer::runBellmanford(int64_t period)
 
         for(uint32_t v = 0; v < totalVertices; v++)
         {
-            int32_t weight = m_constrGraph->getEdge(u,v);
+            int64_t weight = m_constrGraph->getEdge(u,v);
             if(weight == AdjMatrix::INF)
                 continue;
 
@@ -335,6 +374,16 @@ bool Retimer::runBellmanford(int64_t period)
     }
     // Step 3: Save the retiming vector
     m_retimingVector.assign(distance.begin(),distance.begin() + m_totalNodes);
+
+    (*m_verbosity)<<"retiming vector"<<std::endl;
+
+    (*m_verbosity)<<"R<";
+    for(int i = 0; i < m_retimingVector.size(); i++)
+    {
+        (*m_verbosity)<<m_retimingVector.at(i)<<", ";
+    }
+    (*m_verbosity)<<">"<<std::endl;
+
     return true;
 }
 
@@ -365,4 +414,27 @@ void Retimer::applyRetimingVector()
             }
         }
     }
+    (*m_verbosity)<<"optimal clock period is: "<<m_optimalClockPeriod<<std::endl;
+    (*m_verbosity)<<"Retimed Circuit:"<<std::endl;
+    printMatrix(m_retimedCircuit, m_totalNodes);
+}
+
+void Retimer::printMatrix(std::shared_ptr<AdjMatrix> matrix, uint32_t totalNodes)
+{
+    for (uint32_t u = 0; u < totalNodes; u++)
+    {
+        for (uint32_t v = 0; v < totalNodes; v++)
+        {
+            if(matrix->getEdge(u, v) == AdjMatrix::INF)
+            {
+                (*m_verbosity)<<std::setw(6)<<"INF";
+            }
+            else
+            {
+                (*m_verbosity)<<std::setw(6)<<matrix->getEdge(u, v);
+            }
+        }    
+        (*m_verbosity)<<std::endl;
+    }
+    (*m_verbosity)<<std::endl;
 }

@@ -45,9 +45,9 @@ int main(int argc, char* argv[])
             myVerbosity->enableVerbosity();
         }
         else if(arg == "-i")
-            myParser->setInputFile(arg);
+            myParser->setInputFile(argv[++i]);
         else if(arg == "-o")
-            myParser->setOutputFile(arg);
+            myParser->setOutputFile(argv[++i]);
         else if(arg == "-version")
             std::cout<<"Retimer. version 1.0.0 (C) Matthew Hardenburgh. All rights reserved"<<std::endl;
         else if(arg == "-h")
@@ -63,7 +63,6 @@ int main(int argc, char* argv[])
 
     init(myParser, myVerbosity, myRetimer);
     myParser->parseInput();
-    myRetimer->retimeCircuit();
     if(myRetimer->retimeCircuit())
     {
         myRetimer->applyRetimingVector();

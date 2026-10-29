@@ -20,9 +20,7 @@ class Parser
         void setVerbosityPtr(std::shared_ptr<Verbosity> Verbosity){m_verbosityPtr = Verbosity;}
         // use regex to parse file
         void parseInput();
-
         void writeOutput(std::shared_ptr<AdjMatrix> retimedCircuit);
-        void printMatrix(std::shared_ptr<AdjMatrix> matrix, uint32_t totalNodes);
     
     private:
         std::string m_inputFileName;
