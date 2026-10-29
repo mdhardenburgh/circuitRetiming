@@ -368,6 +368,7 @@ bool Retimer::runBellmanford(int64_t period)
             if(distance[u] + weight < distance[v])
             {
                 // Negative cycle detected
+                (*m_verbosity)<<"Negative cycle detected"<<std::endl;
                 return false;
             }
         }

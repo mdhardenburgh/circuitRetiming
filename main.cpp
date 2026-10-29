@@ -49,7 +49,12 @@ int main(int argc, char* argv[])
         else if(arg == "-o")
             myParser->setOutputFile(argv[++i]);
         else if(arg == "-version")
+        {
             std::cout<<"Retimer. version 1.0.0 (C) Matthew Hardenburgh. All rights reserved"<<std::endl;
+            std::cout<<"This program comes with ABSOLUTELY NO WARRANTY."<<std::endl;
+            std::cout<<"This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License."<<std::endl;
+            return 0;
+        }
         else if(arg == "-h")
         {
             std::cout<<"-i \"input file name\". If not specified, default is inputCircuit.txt, at current directory"<<std::endl;

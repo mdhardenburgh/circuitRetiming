@@ -14,12 +14,40 @@ class Parser
         Parser();
         ~Parser();
 
+        /**
+         * @brief Set custom input file.
+         * @param inputFileName: custom input file name
+         * @return No return.
+        */
         void setInputFile(std::string inputFileName);
+        /**
+         * @brief Set custom output file name.
+         * @param outputFileName: custom output file name
+         * @return No return.
+        */
         void setOutputFile(std::string outputFileName);
+        /**
+         * @brief Set the retiming object pointer so the two objects can communicate.
+         * @param retimerPtr: pointer to the retimer object
+         * @return No return.
+        */
         void setRetimerPtr(std::shared_ptr<Retimer> retimerPtr);
+        /**
+         * @brief Set the verbosity object pointer so that parser and verbosity can communicate.
+         * @param Verbosity: pointer to the verbosity object
+         * @return No return.
+        */
         void setVerbosityPtr(std::shared_ptr<Verbosity> Verbosity){m_verbosityPtr = Verbosity;}
-        // use regex to parse file
+        /**
+         * @brief Use regex to parse the input file into the retimer object.
+         * @return No return.
+        */
         void parseInput();
+        /**
+         * @brief Write to output file
+         * @param retimedCircuit: pointer to retimed circuit. 
+         * @return No return.
+        */
         void writeOutput(std::shared_ptr<AdjMatrix> retimedCircuit);
     
     private:
@@ -32,10 +60,5 @@ class Parser
         std::string edgeDelayRegexPattern;
         std::string maxClockCycleRegexPattern;
 
-
-        void parseFor_totalNodes();
-        void parseFor_nodeDelays();
-        void parseFor_edgeDelay();
-        void parseFor_maxClockCycle();
 };
 #endif //PARSER_H 
