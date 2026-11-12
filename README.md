@@ -83,8 +83,9 @@ Default output files are named `retimedCircuit.graph` and `retimedCircuit.txt`.
 ## AI Usage Disclosure
 
 Chat GPT 6 Thinking model was used in the development of this program. The model
-assisted in using correct syntax for regex in the parser, C++ and CMAKE language syntax, development of the binary search,
-Floyd-Warshall and Bellman-Ford algorithms, and general debugging and assorted optimizations.
+assisted in using correct syntax for regex in the parser, C++ and CMAKE language syntax.
+It assisted in the development of the binary search, Floyd-Warshall and
+Bellman-Ford algorithms, and general debugging and assorted optimizations.
 
 ## Copyright and License
 

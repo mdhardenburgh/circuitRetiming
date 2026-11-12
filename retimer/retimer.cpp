@@ -117,11 +117,6 @@ void Retimer::computeWD()
         }
     }
 
-    for(uint32_t i = 0; i < m_totalNodes; i++)
-    {
-        m_shortestPath->setEdge(i, i, 0);
-    }
-
     /**
      * Compute the shortest path S'<u,v> using Floyd-Warshall
      * u is starting node, v is destination, k is intermediate nodes
@@ -295,9 +290,6 @@ void Retimer::buildConstraintGraph()
     printMatrix(m_constrGraph, m_totalNodes+1);
 }
 
-/**
- * chat gpt helped me write this
-*/
 bool Retimer::runBellmanford(int64_t period)
 {
     (*m_verbosity)<<"run Bellman-Ford algorithm"<<std::endl;

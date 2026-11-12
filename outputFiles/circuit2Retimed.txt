@@ -1,0 +1,9 @@
+TotalNodes = 4;
+NodeDelays = 2, 3, 1, 2;
+Edge0,1 = 1;
+Edge1,3 = 1;
+Edge2,0 = 0;
+Edge2,1 = 2;
+Edge3,0 = 1;
+Edge3,2 = 1;
+MaxClockCycle = 3;

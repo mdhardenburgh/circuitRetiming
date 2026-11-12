@@ -1,0 +1,205 @@
+Init Parser
+Init Retimer
+TotalNodes: 4
+node delays
+1
+1
+2
+2
+parsedMaxClockCycle: 3
+Done Parsing
+TotalNodes: 4
+parsed node delay 0: 1
+parsed node delay 1: 1
+parsed node delay 2: 2
+parsed node delay 3: 2
+u: 1 v: 3 delay: 1
+u: 1 v: 4 delay: 2
+u: 2 v: 1 delay: 1
+u: 3 v: 2 delay: 0
+u: 4 v: 2 delay: 0
+MaxClockCycle: 3
+original matrix graph G
+   INF   INF     1     2
+     1   INF   INF   INF
+   INF     0   INF   INF
+   INF     0   INF   INF
+
+circuit G' after applying newWeight = M * origWeight - m_nodeDelays[u]
+   INF   INF     7    15
+     7   INF   INF   INF
+   INF    -2   INF   INF
+   INF    -2   INF   INF
+
+S'<u,v> matrix after Floyd-Warshall
+    12     5     7    15
+     7    12    14    22
+     5    -2    12    20
+     5    -2    12    20
+
+W Matrix
+     0     1     1     2
+     1     0     2     3
+     1     0     0     3
+     1     0     2     0
+
+D Matrix
+     1     4     3     3
+     2     1     4     4
+     4     3     2     6
+     4     3     6     2
+
+possible clock periods: 1, 2, 3, 4, 6, 
+begin binary search
+test period: 3
+run Bellman-Ford algorithm
+build system of inequalities
+begin with feasability constraints
+after feasability constraints are added
+r(0) - r(2) <= 1
+r(0) - r(3) <= 2
+r(1) - r(0) <= 1
+r(2) - r(1) <= 0
+r(3) - r(1) <= 0
+after feasability and clock period constraints are added
+r(0) - r(2) <= 1
+r(0) - r(3) <= 2
+r(1) - r(0) <= 1
+r(2) - r(1) <= 0
+r(3) - r(1) <= 0
+r(0) - r(1) <= 0
+r(1) - r(2) <= 1
+r(1) - r(3) <= 2
+r(2) - r(0) <= 0
+r(2) - r(3) <= 2
+r(3) - r(0) <= 0
+r(3) - r(2) <= 1
+building constraint graph
+constraint graph
+   INF     1     0     0   INF
+     0   INF     0     0   INF
+     1     1   INF     1   INF
+     2     2     2   INF   INF
+     0     0     0     0     0
+
+retiming vector
+R<0, 0, 0, 0, >
+test period: 2
+run Bellman-Ford algorithm
+build system of inequalities
+begin with feasability constraints
+after feasability constraints are added
+r(0) - r(2) <= 1
+r(0) - r(3) <= 2
+r(1) - r(0) <= 1
+r(2) - r(1) <= 0
+r(3) - r(1) <= 0
+after feasability and clock period constraints are added
+r(0) - r(2) <= 1
+r(0) - r(3) <= 2
+r(1) - r(0) <= 1
+r(2) - r(1) <= 0
+r(3) - r(1) <= 0
+r(0) - r(1) <= 0
+r(0) - r(2) <= 0
+r(0) - r(3) <= 1
+r(1) - r(2) <= 1
+r(1) - r(3) <= 2
+r(2) - r(0) <= 0
+r(2) - r(1) <= -1
+r(2) - r(3) <= 2
+r(3) - r(0) <= 0
+r(3) - r(1) <= -1
+r(3) - r(2) <= 1
+building constraint graph
+constraint graph
+   INF     1     0     0   INF
+     0   INF    -1    -1   INF
+     0     1   INF     1   INF
+     1     2     2   INF   INF
+     0     0     0     0     0
+
+retiming vector
+R<-1, 0, -1, -1, >
+test period: 1
+run Bellman-Ford algorithm
+build system of inequalities
+begin with feasability constraints
+after feasability constraints are added
+r(0) - r(2) <= 1
+r(0) - r(3) <= 2
+r(1) - r(0) <= 1
+r(2) - r(1) <= 0
+r(3) - r(1) <= 0
+after feasability and clock period constraints are added
+r(0) - r(2) <= 1
+r(0) - r(3) <= 2
+r(1) - r(0) <= 1
+r(2) - r(1) <= 0
+r(3) - r(1) <= 0
+r(0) - r(1) <= 0
+r(0) - r(2) <= 0
+r(0) - r(3) <= 1
+r(1) - r(0) <= 0
+r(1) - r(2) <= 1
+r(1) - r(3) <= 2
+r(2) - r(0) <= 0
+r(2) - r(1) <= -1
+r(2) - r(2) <= -1
+r(2) - r(3) <= 2
+r(3) - r(0) <= 0
+r(3) - r(1) <= -1
+r(3) - r(2) <= 1
+r(3) - r(3) <= -1
+building constraint graph
+constraint graph
+   INF     0     0     0   INF
+     0   INF    -1    -1   INF
+     0     1    -1     1   INF
+     1     2     2    -1   INF
+     0     0     0     0     0
+
+Negative cycle detected
+run Bellman-Ford algorithm
+build system of inequalities
+begin with feasability constraints
+after feasability constraints are added
+r(0) - r(2) <= 1
+r(0) - r(3) <= 2
+r(1) - r(0) <= 1
+r(2) - r(1) <= 0
+r(3) - r(1) <= 0
+after feasability and clock period constraints are added
+r(0) - r(2) <= 1
+r(0) - r(3) <= 2
+r(1) - r(0) <= 1
+r(2) - r(1) <= 0
+r(3) - r(1) <= 0
+r(0) - r(1) <= 0
+r(0) - r(2) <= 0
+r(0) - r(3) <= 1
+r(1) - r(2) <= 1
+r(1) - r(3) <= 2
+r(2) - r(0) <= 0
+r(2) - r(1) <= -1
+r(2) - r(3) <= 2
+r(3) - r(0) <= 0
+r(3) - r(1) <= -1
+r(3) - r(2) <= 1
+building constraint graph
+constraint graph
+   INF     1     0     0   INF
+     0   INF    -1    -1   INF
+     0     1   INF     1   INF
+     1     2     2   INF   INF
+     0     0     0     0     0
+
+retiming vector
+R<-1, 0, -1, -1, >
+optimal clock period is: 2
+Retimed Circuit:
+   INF   INF     1     2
+     0   INF   INF   INF
+   INF     1   INF   INF
+   INF     1   INF   INF
+
